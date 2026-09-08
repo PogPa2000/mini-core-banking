@@ -43,13 +43,20 @@ public class CustomerController {
         );
     }
 
+    @DeleteMapping("/{customerNo}")
+    public ResponseEntity<Void> delete(
+            @PathVariable("customerNo") String customerNo) {
+        customerService.delete(customerNo);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
-    public ResponseEntity<List<Customer>> getAll(){
+    public ResponseEntity<List<CustomerResponse>> getAll(){
         return ResponseEntity.ok(customerService.getAll());
     }
 
     @GetMapping("/{customerNo}")
-    public ResponseEntity<Optional<Customer>> getFindByCustomerNo(@PathVariable String customerNo){
+    public ResponseEntity<CustomerResponse> getFindByCustomerNo(@PathVariable String customerNo){
         return ResponseEntity.ok(customerService.getByFindCustomerNo(customerNo));
     }
 

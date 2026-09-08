@@ -49,34 +49,43 @@ public class CustomerService {
                         new RuntimeException(
                                 "Khach hang khong ton tai"));
 
-        Customer oldCustomer = new Customer();
-        oldCustomer.setFullName(customer.getFullName());
-        oldCustomer.setDateOfBirth(customer.getDateOfBirth());
-        oldCustomer.setPhone(customer.getPhone());
-        oldCustomer.setEmail(customer.getEmail());
-        oldCustomer.setGender(customer.getGender());
-
         customer.setFullName(request.getFullName());
         customer.setDateOfBirth(request.getDateOfBirth());
         customer.setPhone(request.getPhone());
         customer.setEmail(request.getEmail());
         customer.setGender(request.getGender());
 
-        CustomerResponse response =
-                new CustomerResponse(customer);
+        return  new CustomerResponse(customer);
+    }
 
-        return response;
+    @Auditable(functionKey = "DELETE_CUSTOMER")
+    @Transactional
+    public void delete(String customerNo){
+        Customer customer = customerRepository.findByCustomerNo(customerNo)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        if(customer.getStatus() == CustomerStatus.BLOCKED){
+            throw new RuntimeException("Customer deleted");
+        }
+
+        customer.setStatus(CustomerStatus.BLOCKED);
+        customerRepository.save(customer);
     }
 
     private String generateCustomerNo() {
         return "cus_" + System.currentTimeMillis();
     }
 
-    public List<Customer> getAll(){
-        return customerRepository.findAll();
+    public List<CustomerResponse> getAll(){
+        return customerRepository.findAll()
+                .stream()
+                .map(CustomerResponse::new)
+                .toList();
     }
 
-    public Optional<Customer> getByFindCustomerNo(String customerNo){
-        return customerRepository.findByCustomerNo(customerNo);
+    public CustomerResponse getByFindCustomerNo(String customerNo){
+        Customer customer = customerRepository .findByCustomerNo(customerNo)
+                .orElseThrow(() -> new RuntimeException( "Khach hang khong ton tai"));
+        return new CustomerResponse(customer);
     }
 }
