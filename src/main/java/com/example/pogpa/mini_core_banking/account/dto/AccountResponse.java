@@ -1,6 +1,6 @@
 package com.example.pogpa.mini_core_banking.account.dto;
 
-import com.example.pogpa.mini_core_banking.account.AccountStatus;
+import com.example.pogpa.mini_core_banking.account.enums.AccountStatus;
 import com.example.pogpa.mini_core_banking.account.entity.Account;
 import lombok.Data;
 

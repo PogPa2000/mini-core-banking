@@ -1,6 +1,6 @@
 package com.example.pogpa.mini_core_banking.account.entity;
 
-import com.example.pogpa.mini_core_banking.account.AccountStatus;
+import com.example.pogpa.mini_core_banking.account.enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
