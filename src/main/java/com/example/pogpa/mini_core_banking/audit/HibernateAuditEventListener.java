@@ -170,14 +170,15 @@ public class HibernateAuditEventListener implements PreInsertEventListener, PreU
             return null;
         }
 
-        try {
-            objectMapper.writeValueAsString(value);
+        if (value instanceof String
+                || value instanceof Number
+                || value instanceof Boolean
+                || value instanceof Enum) {
+
             return value;
-
-        } catch (Exception e) {
-
-            return String.valueOf(value);
         }
+
+        return String.valueOf(value);
     }
 
     private boolean isAuditLog(Object entity) {

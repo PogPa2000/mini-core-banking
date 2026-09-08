@@ -1,5 +1,6 @@
 package com.example.pogpa.mini_core_banking.audit;
 
+import com.example.pogpa.mini_core_banking.audit.context.AuditTransactionContext;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.spi.BootstrapContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -21,17 +22,20 @@ import java.util.Map;
 public class HibernateAuditConfiguration
         implements HibernatePropertiesCustomizer {
 
+    private final ObjectProvider<AuditTransactionContext>
+            auditTransactionContextProvider;
+
     private final ObjectMapper objectMapper;
 
-    private final ObjectProvider<
-            HibernateAuditEventListener> listenerProvider;
-
     public HibernateAuditConfiguration(
-            ObjectMapper objectMapper,
-            ObjectProvider<HibernateAuditEventListener> listenerProvider) {
+            ObjectProvider<AuditTransactionContext>
+                    auditTransactionContextProvider,
+            ObjectMapper objectMapper) {
+
+        this.auditTransactionContextProvider =
+                auditTransactionContextProvider;
 
         this.objectMapper = objectMapper;
-        this.listenerProvider = listenerProvider;
     }
 
     @Override
@@ -42,7 +46,8 @@ public class HibernateAuditConfiguration
                 (IntegratorProvider) () ->
                         List.of(
                                 new AuditIntegrator(
-                                        listenerProvider
+                                        auditTransactionContextProvider,
+                                        objectMapper
                                 )
                         )
         );
@@ -51,13 +56,20 @@ public class HibernateAuditConfiguration
     private static class AuditIntegrator
             implements Integrator {
 
-        private final ObjectProvider<
-                HibernateAuditEventListener> listenerProvider;
+        private final ObjectProvider<AuditTransactionContext>
+                auditTransactionContextProvider;
+
+        private final ObjectMapper objectMapper;
 
         private AuditIntegrator(
-                ObjectProvider<HibernateAuditEventListener> listenerProvider) {
+                ObjectProvider<AuditTransactionContext>
+                        auditTransactionContextProvider,
+                ObjectMapper objectMapper) {
 
-            this.listenerProvider = listenerProvider;
+            this.auditTransactionContextProvider =
+                    auditTransactionContextProvider;
+
+            this.objectMapper = objectMapper;
         }
 
         @Override
@@ -74,7 +86,10 @@ public class HibernateAuditConfiguration
                             );
 
             HibernateAuditEventListener listener =
-                    listenerProvider.getObject();
+                    new HibernateAuditEventListener(
+                            objectMapper,
+                            auditTransactionContextProvider
+                    );
 
             registry.appendListeners(
                     EventType.PRE_INSERT,
